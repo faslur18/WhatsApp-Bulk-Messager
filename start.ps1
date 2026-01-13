@@ -13,21 +13,29 @@ if ($null -eq $mongoProcess) {
     Write-Host "  - Windows: Run 'mongod' in a separate terminal" -ForegroundColor Gray
     Write-Host "  - Or use MongoDB Atlas cloud service" -ForegroundColor Gray
     Write-Host ""
-} else {
+}
+else {
     Write-Host "✅ MongoDB is running" -ForegroundColor Green
 }
 
 # Check if Redis is running
 Write-Host "`n📦 Checking Redis..." -ForegroundColor Yellow
+
+$redisService = Get-Service -Name "Redis" -ErrorAction SilentlyContinue
 $redisProcess = Get-Process redis-server -ErrorAction SilentlyContinue
-if ($null -eq $redisProcess) {
+
+if ($redisService.Status -eq 'Running') {
+    Write-Host "✅ Redis is running (Windows Service)" -ForegroundColor Green
+}
+elseif ($null -ne $redisProcess) {
+    Write-Host "✅ Redis is running (Process)" -ForegroundColor Green
+}
+else {
     Write-Host "❌ Redis is not running!" -ForegroundColor Red
     Write-Host "Please start Redis first:" -ForegroundColor Yellow
     Write-Host "  - Windows: Run 'redis-server' in a separate terminal" -ForegroundColor Gray
-    Write-Host "  - Or use Redis Cloud service" -ForegroundColor Gray
+    Write-Host "  - Or check if 'Redis' service is installed and started" -ForegroundColor Gray
     Write-Host ""
-} else {
-    Write-Host "✅ Redis is running" -ForegroundColor Green
 }
 
 # Check if .env exists
@@ -37,7 +45,8 @@ if (-not (Test-Path "backend\.env")) {
     Write-Host "Please create backend/.env from backend/.env.example" -ForegroundColor Yellow
     Write-Host "See QUICKSTART.md for detailed instructions" -ForegroundColor Gray
     Write-Host ""
-} else {
+}
+else {
     Write-Host "✅ Backend configuration found" -ForegroundColor Green
 }
 
@@ -48,21 +57,16 @@ if (-not (Test-Path "frontend\.env")) {
 }
 
 Write-Host "`n" + "=" * 60
-Write-Host "📋 Next Steps:" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "1. Make sure MongoDB and Redis are running" -ForegroundColor White
-Write-Host "2. Configure backend/.env with your WhatsApp API credentials" -ForegroundColor White
-Write-Host "3. Open 2 terminals and run:" -ForegroundColor White
-Write-Host ""
-Write-Host "   Terminal 1 (Backend):" -ForegroundColor Yellow
-Write-Host "   cd backend" -ForegroundColor Gray
-Write-Host "   npm run dev" -ForegroundColor Gray
-Write-Host ""
-Write-Host "   Terminal 2 (Frontend):" -ForegroundColor Yellow
-Write-Host "   cd frontend" -ForegroundColor Gray
-Write-Host "   npm run dev" -ForegroundColor Gray
-Write-Host ""
-Write-Host "4. Open your browser to http://localhost:5173" -ForegroundColor White
-Write-Host ""
-Write-Host "📚 For detailed setup instructions, see QUICKSTART.md" -ForegroundColor Cyan
+Write-Host "🚀 Launching Services..." -ForegroundColor Cyan
+Write-Host "1. Starting Backend Server... (New Window)" -ForegroundColor White
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd backend; npm run dev"
+
+Write-Host "2. Starting Frontend... (New Window)" -ForegroundColor White
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd frontend; npm run dev"
+
+Write-Host "3. Opening Browser..." -ForegroundColor White
+Start-Process "http://localhost:5173"
+
+Write-Host "`n✅ All services started!" -ForegroundColor Green
+Write-Host "⚠️  Note: Keep the two new PowerShell windows open." -ForegroundColor Yellow
 Write-Host "=" * 60 + "`n"

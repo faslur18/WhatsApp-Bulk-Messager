@@ -29,7 +29,7 @@ const contactSchema = new mongoose.Schema({
 });
 
 // Index for faster queries
-contactSchema.index({ phoneNumber: 1 });
+// contactSchema.index({ phoneNumber: 1 }); // Already indexed by unique: true
 contactSchema.index({ tags: 1 });
 contactSchema.index({ isActive: 1 });
 

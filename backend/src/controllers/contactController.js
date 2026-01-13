@@ -1,6 +1,6 @@
 import Contact from '../models/Contact.js';
 import csv from 'csv-parser';
-import xlsx from 'xlsx';
+import ExcelJS from 'exceljs';
 import fs from 'fs';
 import { Readable } from 'stream';
 
@@ -244,10 +244,35 @@ export const uploadContacts = async (req, res) => {
       }
     } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
       // Parse Excel
-      const workbook = xlsx.read(req.file.buffer);
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const data = xlsx.utils.sheet_to_json(sheet);
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(req.file.buffer);
+      const worksheet = workbook.worksheets[0];
+      
+      const data = [];
+      if (worksheet) {
+        // Get headers
+        const headers = {};
+        const firstRow = worksheet.getRow(1);
+        firstRow.eachCell((cell, colNumber) => {
+          headers[colNumber] = cell.value ? cell.value.toString() : '';
+        });
+
+        // Get data
+        worksheet.eachRow((row, rowNumber) => {
+          if (rowNumber === 1) return;
+          
+          const rowData = {};
+          row.eachCell((cell, colNumber) => {
+            const header = headers[colNumber];
+            if (header) {
+              const val = cell.value;
+              // Handle rich text or hyperlinks if present, otherwise use value
+              rowData[header] = (val && typeof val === 'object' && val.text) ? val.text : val;
+            }
+          });
+          data.push(rowData);
+        });
+      }
       
       for (const row of data) {
         const name = row.name || row.Name || row.NAME;

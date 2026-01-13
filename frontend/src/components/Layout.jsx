@@ -71,8 +71,15 @@ const Layout = () => {
                                     }`
                                 }
                             >
-                                <item.icon size={20} className={({ isActive }) => isActive ? 'text-wa-teal' : 'text-wa-gray-400 group-hover:text-wa-gray-500'} />
-                                <span>{item.name}</span>
+                                {({ isActive }) => (
+                                    <>
+                                        <item.icon 
+                                            size={20} 
+                                            className={isActive ? 'text-wa-teal' : 'text-wa-gray-400 group-hover:text-wa-gray-500'} 
+                                        />
+                                        <span>{item.name}</span>
+                                    </>
+                                )}
                             </NavLink>
                         ))}
                     </nav>
