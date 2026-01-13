@@ -123,6 +123,10 @@ npm run dev
 redis-server
 ```
 
+```bash
+sudo service redis-server start
+```
+
 ### Environment Variables
 
 #### Backend (.env)
